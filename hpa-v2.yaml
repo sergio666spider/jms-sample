@@ -1,0 +1,61 @@
+apiVersion: v1
+items:
+- apiVersion: autoscaling/v2beta1
+  kind: HorizontalPodAutoscaler
+  metadata:
+    creationTimestamp: 2018-08-23T21:04:55Z
+    name: sample-app
+    namespace: default
+    resourceVersion: "104182"
+    selfLink: /apis/autoscaling/v2beta1/namespaces/default/horizontalpodautoscalers/sample-app
+    uid: 2fea7cc9-a718-11e8-b2c2-08002704d559
+  spec:
+    maxReplicas: 10
+    metrics:
+    - external:
+        metricName: my-external-metric
+        metricSelector:
+          matchLabels:
+            queue: bar
+        targetAverageValue: "30"
+      type: External
+    minReplicas: 1
+    scaleTargetRef:
+      apiVersion: extensions/v1beta1
+      kind: Deployment
+      name: sample-app
+  status:
+    conditions:
+    - lastTransitionTime: 2018-08-23T21:47:15Z
+      message: the HPA controller was able to get the target's current scale
+      reason: SucceededGetScale
+      status: "True"
+      type: AbleToScale
+    - lastTransitionTime: 2018-08-24T14:30:16Z
+      message: 'the HPA was unable to compute the replica count: unable to get external
+        metric default/my-external-metric/&LabelSelector{MatchLabels:map[string]string{queue:
+        bar,},MatchExpressions:[],}: unable to fetch metrics from external metrics
+        API: my-external-metric.external.metrics.k8s.io is forbidden: User "system:serviceaccount:kube-system:horizontal-pod-autoscaler"
+        cannot list my-external-metric.external.metrics.k8s.io in the namespace "default"'
+      reason: FailedGetExternalMetric
+      status: "False"
+      type: ScalingActive
+    - lastTransitionTime: 2018-08-24T10:50:16Z
+      message: the desired replica count is increasing faster than the maximum scale
+        rate
+      reason: TooFewReplicas
+      status: "True"
+      type: ScalingLimited
+    currentMetrics:
+    - resource:
+        currentAverageUtilization: 0
+        currentAverageValue: 1m
+        name: cpu
+      type: Resource
+    currentReplicas: 1
+    desiredReplicas: 1
+    lastScaleTime: 2018-08-23T21:42:14Z
+kind: List
+metadata:
+  resourceVersion: ""
+  selfLink: ""
