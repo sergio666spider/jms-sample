@@ -17,42 +17,27 @@ import org.springframework.amqp.core.Binding;
 
 @SpringBootApplication
 public class JmsSampleApplication {
-
-	public static final String topicExchangeName = "my-test-exchange";
-
-	static final String queueName = "my-test-queue";
+	private static final String queueName = "my-test-queue";
 
 	@Bean
 	Queue queue() {
-		return new Queue(queueName, false);
+		return new Queue(queueName);
 	}
 
 	@Bean
-	TopicExchange exchange() {
-		return new TopicExchange(topicExchangeName);
-	}
+	ConnectionFactory connectionFactory() {
+		CachingConnectionFactory connectionFactory = new CachingConnectionFactory("172.18.0.1");
 
-	@Bean
-	Binding binding(Queue queue, TopicExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with("foo.bar.#");
-	}
-
-	@Bean
-	public ConnectionFactory connectionFactory() {
-		CachingConnectionFactory connectionFactory =
-				new CachingConnectionFactory("172.16.106.194");
-		connectionFactory.setUsername("test");
-		connectionFactory.setPassword("test");
 		return connectionFactory;
 	}
 
 	@Bean
-	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
-											 MessageListenerAdapter listenerAdapter) {
+	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, MessageListenerAdapter listenerAdapter) {
 		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
 		container.setConnectionFactory(connectionFactory);
 		container.setQueueNames(queueName);
 		container.setMessageListener(listenerAdapter);
+
 		return container;
 	}
 
@@ -64,5 +49,4 @@ public class JmsSampleApplication {
 	public static void main(String[] args) throws InterruptedException {
 		SpringApplication.run(JmsSampleApplication.class, args);
 	}
-
 }

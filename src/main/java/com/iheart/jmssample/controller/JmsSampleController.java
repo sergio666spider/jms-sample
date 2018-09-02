@@ -1,5 +1,7 @@
 package com.iheart.jmssample.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +17,8 @@ import java.util.stream.IntStream;
 
 @RestController
 public class JmsSampleController {
-
-    public static List<HashMap> memory = new ArrayList<>();
+    private static List<HashMap> memory = new ArrayList<>();
+    private static final Logger log = LoggerFactory.getLogger(JmsSampleController.class);
 
     @Autowired
     private AmqpTemplate template;
@@ -26,17 +28,17 @@ public class JmsSampleController {
 
     @RequestMapping("/sendMessage")
     public ResponseEntity<String> sendMessage(@RequestParam Integer quantity) throws InterruptedException {
-        IntStream.range(0, quantity).parallel().forEach(
-                nbr -> sendToQueue(nbr)
-        );
+        for (int i = 0; i < quantity; i++){
+            sendToQueue(i);
+        }
 
-        return ResponseEntity.ok("Sending " + quantity + " messages.");
+        return ResponseEntity.ok(String.format("Sending %d messages.", quantity));
     }
 
     private void sendToQueue(Integer i) {
-        System.out.println("Sending message...");
-        template.convertAndSend(queue.getName(), "Message " + i);
-
+        final String message = String.format("Message #%d", i + 1);
+        log.info("Sending: {}", message);
+        template.convertAndSend(queue.getName(), message);
     }
 
     @RequestMapping("/computeSquare")
@@ -45,8 +47,6 @@ public class JmsSampleController {
                 i -> Math.sqrt(i * 1.5d)
         );
 
-        return ResponseEntity.ok("Sending " + quantity + " messages.");
+        return ResponseEntity.ok(String.format("Sending %d messages.", quantity));
     }
-
-
 }
