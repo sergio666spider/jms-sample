@@ -1,17 +1,17 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: sample-app
+  name: cpu-hpa
   namespace: default
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: sample-app
+    name: sample-deployment
   minReplicas: 1
   maxReplicas: 10
   metrics:
     - resource:
-        name: memory
-        targetAverageValue: 300Mi
+        name: cpu
+        targetAverageUtilization: 20
       type: Resource

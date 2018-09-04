@@ -1,15 +1,15 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: sample-app
+  name: queue-hpa
   namespace: default
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: sample-app
+    name: sample-deployment
   minReplicas: 1
-  maxReplicas: 10
+  maxReplicas: 5
   metrics:
   - type: External
     external:
@@ -17,4 +17,4 @@ spec:
       metricSelector:
         matchLabels:
           name: my-test-queue
-      targetValue: 10
+      targetAverageValue: 250

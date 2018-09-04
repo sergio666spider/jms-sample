@@ -26,7 +26,9 @@ public class JmsSampleApplication {
 
 	@Bean
 	ConnectionFactory connectionFactory() {
-		CachingConnectionFactory connectionFactory = new CachingConnectionFactory("172.18.0.1");
+		CachingConnectionFactory connectionFactory = new CachingConnectionFactory("172.16.106.194");
+		connectionFactory.setUsername("test");
+		connectionFactory.setPassword("test");
 
 		return connectionFactory;
 	}

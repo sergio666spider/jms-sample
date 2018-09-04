@@ -1,15 +1,16 @@
 package com.iheart.jmssample.controller;
 
+import com.iheart.jmssample.Memory1Mb;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.amqp.core.Queue;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,9 @@ public class JmsSampleController {
     private static List<HashMap> memory = new ArrayList<>();
     private static final Logger log = LoggerFactory.getLogger(JmsSampleController.class);
 
+    private static List<Memory1Mb> memories = new ArrayList<>();
+
+
     @Autowired
     private AmqpTemplate template;
 
@@ -27,12 +31,13 @@ public class JmsSampleController {
     private Queue queue;
 
     @RequestMapping("/sendMessage")
-    public ResponseEntity<String> sendMessage(@RequestParam Integer quantity) throws InterruptedException {
+    public ResponseEntity<String> sendMessage(@RequestParam Integer quantity) throws InterruptedException, UnknownHostException {
         for (int i = 0; i < quantity; i++){
             sendToQueue(i);
         }
 
-        return ResponseEntity.ok(String.format("Sending %d messages.", quantity));
+        InetAddress inetAddress = InetAddress.getLocalHost();
+        return ResponseEntity.ok(String.format("Sending %d messages answered by %s", quantity, inetAddress.getHostName()));
     }
 
     private void sendToQueue(Integer i) {
@@ -42,11 +47,30 @@ public class JmsSampleController {
     }
 
     @RequestMapping("/computeSquare")
-    public ResponseEntity<String> computeSquare(@RequestParam Integer quantity) throws InterruptedException {
+    public ResponseEntity<String> computeSquare(@RequestParam Integer quantity) throws InterruptedException, UnknownHostException {
         IntStream.range(0, quantity).forEach(
                 i -> Math.sqrt(i * 1.5d)
         );
 
-        return ResponseEntity.ok(String.format("Sending %d messages.", quantity));
+        InetAddress inetAddress = InetAddress.getLocalHost();
+        return ResponseEntity.ok(String.format("hostname: %s", quantity, inetAddress.getHostName()));
+    }
+
+    @GetMapping("/increaseMemory")
+    public ResponseEntity<String> increaseMemory(@RequestParam Integer quantity) throws InterruptedException, UnknownHostException {
+        for (int i = 0; i < quantity; i++) {
+            memories.add(new Memory1Mb());
+        }
+
+        InetAddress inetAddress = InetAddress.getLocalHost();
+        return ResponseEntity.ok(String.format("hostname: %s", inetAddress.getHostName()));
+    }
+
+    @GetMapping("/cleanMemory")
+    public ResponseEntity<String> increaseMemory() throws InterruptedException, UnknownHostException {
+        memories.clear();
+
+        InetAddress inetAddress = InetAddress.getLocalHost();
+        return ResponseEntity.ok(String.format("deleting men answered by %s", inetAddress.getHostName()));
     }
 }
