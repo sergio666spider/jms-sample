@@ -13,7 +13,7 @@ spec:
   metrics:
   - type: External
     external:
-      metricName: queue_messages_ready
+      metricName: queue_messages
       metricSelector:
         matchLabels:
           name: my-test-queue
