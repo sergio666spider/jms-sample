@@ -23,6 +23,7 @@ public class JmsSampleController {
 
     private static List<Memory1Mb> memories = new ArrayList<>();
 
+    private static Integer count = 0;
 
     @Autowired
     private AmqpTemplate template;
@@ -48,12 +49,12 @@ public class JmsSampleController {
 
     @RequestMapping("/computeSquare")
     public ResponseEntity<String> computeSquare(@RequestParam Integer quantity) throws InterruptedException, UnknownHostException {
-        IntStream.range(0, quantity).forEach(
+        IntStream.range(0, quantity).parallel().forEach(
                 i -> Math.sqrt(i * 1.5d)
         );
 
         InetAddress inetAddress = InetAddress.getLocalHost();
-        return ResponseEntity.ok(String.format("hostname: %s", quantity, inetAddress.getHostName()));
+        return ResponseEntity.ok(String.format("hostname: %s", inetAddress.getHostName()));
     }
 
     @GetMapping("/increaseMemory")
@@ -70,7 +71,19 @@ public class JmsSampleController {
     public ResponseEntity<String> increaseMemory() throws InterruptedException, UnknownHostException {
         memories.clear();
 
+        System.gc();
+
         InetAddress inetAddress = InetAddress.getLocalHost();
         return ResponseEntity.ok(String.format("deleting men answered by %s", inetAddress.getHostName()));
+    }
+
+    @GetMapping("/increaseCpuMemory")
+    public ResponseEntity<String> increaseCpuMemory(@RequestParam Integer quantity) throws InterruptedException, UnknownHostException {
+        for (int i = 0; i < quantity; i++) {
+            memories.add(new Memory1Mb());
+        }
+
+        InetAddress inetAddress = InetAddress.getLocalHost();
+        return ResponseEntity.ok(String.format("hostname: %s - %d", inetAddress.getHostName(), count++)) ;
     }
 }
