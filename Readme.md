@@ -12,11 +12,14 @@ Last, open your favorite browser window and navigate to [http://localhost:15672/
 ```sh
 minikube start --memory 4096 --extra-config=controller-manager.horizontal-pod-autoscaler-upscale-delay=10s  --extra-config=controller-manager.horizontal-pod-autoscaler-downscale-delay=10s --extra-config=controller-manager.horizontal-pod-autoscaler-sync-period=10s
 ```
+
 2. Set Minikube to use its Docker daemon, instead of local Docker repository:
 ```sh
 eval $(minikube docker-env)
 ```
+
 3. Edit *JmsSampleApplication* class and change the IP address to use your local IP
+
 4. Now build the application and deploy its image to Docker:
 ```sh
 ./gradlew build docker
@@ -24,8 +27,9 @@ eval $(minikube docker-env)
 If you run the command *docker images*, you should see the project's image successfully pushed to Minikube Docker's repository:
 |REPOSITORY|TAG|IMAGE ID|CREATED|SIZE|
 | ------ | ------ | ------ | ------ |------ |
-|com.iheart/jms-sample|latest|fee6819d7951|About a minute ago|   121MB
-4. Next, deploy the project's image to k8s by running the command:
+|com.iheart/jms-sample|latest|fee6819d7951|About a minute ago|   121MB|
+
+5. Next, deploy the project's image to k8s by running the command:
 ```sh
 kubectl apply -f deploy/deployment/sample-deployment.yaml
 ```
@@ -33,7 +37,8 @@ If everything ran well, you should see a *sample-deployment* POD returned by the
 |NAME|READY|STATUS|RESTARTS|AGE|
 | ------ | ------ | ------ | ------ |------ |
 |sample-deployment-77ddb4df7d-d9gpp|1/1|Running|0|23s|
-5. Now it is the great time to create the HPA based on *queue_messages* metric:
+
+6. Now it is the great time to create the HPA based on *queue_messages* metric:
 ```sh
 kubectl apply -f deploy/hpa/hpa-queue-sample.yaml
 ```
@@ -45,7 +50,8 @@ This is expected because Kubernetes delays a few seconds to read and update the 
 |NAME|REFERENCE|TARGETS|MINPODS|MAXPODS|REPLICAS|AGE|
 | ------ | ------ | ------ | ------ |------ | ------ | ------ |
 |queue-hpa|Deployment/sample-deployment|0/250 (avg)|1|5|0|10s|
-6. Let's produce a bunch of messages in a test queue to simulate a heavy load and, hence, see the HPA working as expected. Type these commands to expose the application as a load-balancer service:
+
+7. Let's produce a bunch of messages in a test queue to simulate a heavy load and, hence, see the HPA working as expected. Type these commands to expose the application as a load-balancer service:
 ```sh
 kubectl expose deployment sample-deployment --type=LoadBalancer
 
@@ -56,4 +62,5 @@ Go back to the terminal and hit *kubectl get hpa* until the metric value is upda
 |NAME|REFERENCE|TARGETS|MINPODS|MAXPODS|REPLICAS|AGE|
 | ------ | ------ | ------ | ------ |------ | ------ | ------ |
 |queue-hpa|Deployment/sample-deployment|971/250 (avg)|1|5|1|28m|
-7. After 1 minute or so, run *kubectl get all* and see that the number of PODs were dinamically increased based on the metric. Run this command over and over again to monitor the application and check the autoscaling up and down based on the processing of the messages in the queue.
+
+8. After 1 minute or so, run *kubectl get all* and see that the number of PODs were dinamically increased based on the metric. Run this command over and over again to monitor the application and check the autoscaling up and down based on the processing of the messages in the queue.
