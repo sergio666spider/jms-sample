@@ -59,8 +59,6 @@ minikube service sample-deployment
 ```
 The second command will open a browser window with a URL. Append */sendMessage?quantity=1000* to it and hit *Enter*: this endpoint simulates 1000 messages being posted to the *test* queue.
 Go back to the terminal and hit *kubectl get hpa* until the metric value is updated with the current quantity of messages in the queue:
-|NAME|REFERENCE|TARGETS|MINPODS|MAXPODS|REPLICAS|AGE|
-| ------ | ------ | ------ | ------ |------ | ------ | ------ |
-|queue-hpa|Deployment/sample-deployment|971/250 (avg)|1|5|0|10s|
+
 
 8. After 1 minute or so, run *kubectl get all* and see that the number of PODs were dinamically increased based on the metric. Run this command over and over again to monitor the application and check the autoscaling up and down based on the processing of the messages in the queue.
